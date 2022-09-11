@@ -39,7 +39,7 @@ router.put("/:id", (request, response) => {
             item.desc=request.body.desc
         }
     });
-    console.log(forSaleItems)
+    // console.log(forSaleItems)
 
     fs.writeFileSync(taskFilePath, JSON.stringify(forSaleItems));
     response.status(200).send();

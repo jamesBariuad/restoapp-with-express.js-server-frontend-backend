@@ -1,8 +1,9 @@
 const express = require("express");
 const app = express();
 const port = 8080;
-const cors = require("cors")
+const cors = require("cors");
 const forSaleItemsRouter = require("./routes/forSaleItems");
+const cartItemsRouter = require("./routes/cartItems");
 const bodyParser = require("body-parser");
 
 app.use(bodyParser.json());
@@ -13,6 +14,7 @@ app.use(
 );
 
 app.use("/forSaleItems", forSaleItemsRouter);
+app.use("/cartItems", cartItemsRouter);
 
 
 app.get("/", (request, response) => {

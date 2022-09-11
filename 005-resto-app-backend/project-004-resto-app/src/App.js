@@ -2,7 +2,7 @@ import './App.css';
 import { v4 as uuidv4 } from 'uuid';
 import ModifyItems from './components/ModifyItems';
 import AddItem from './components/AddItem';
-import { useReducer,useState, useEffect } from "react"
+import { useReducer, useState, useEffect } from "react"
 import Cart from './components/Cart';
 import SortCategory from './components/SortCategory'
 import styles from "./App.module.css"
@@ -17,9 +17,7 @@ import axios from "axios";
 
 function App() {
   const initialState = {
-    forSaleItems: [
-     
-    ],
+    forSaleItems: [],
     cartItems: [],
     categorySelected: "",
     toggle: true
@@ -29,24 +27,29 @@ function App() {
   const reducer = (state, action) => {
     switch (action.type) {
       case "ADD_ITEM":
-        axios.post("http://localhost:8080/forSaleItems", action.payload).then((response)=>{
+        axios.post("http://localhost:8080/forSaleItems", action.payload).then((response) => {
           // console.log(response)
         })
         return { ...state, forSaleItems: [...state.forSaleItems, action.payload] }
       case "EDIT_ITEM":
         axios.put(`http://localhost:8080/forSaleItems/${action.payload.id}`, action.payload)
-        .then((response)=>{
-          console.log(response);
-        })
-        console.log(action.payload)
+          .then((response) => {
+            console.log(response);
+          })
+
+        axios.put(`http://localhost:8080/cartItems/${action.payload.id}`, action.payload)
+          .then((response) => {
+            console.log(response);
+          })
+
         return {
           ...state, forSaleItems: state.forSaleItems.map(item => {
             if (item.id === action.payload.id) {
               item.name = action.payload.name;
               item.price = action.payload.price;
               item.category = action.payload.category
-              item.image=action.payload.image
-              item.desc=action.payload.desc
+              item.image = action.payload.image
+              item.desc = action.payload.desc
             }
             return item
           }),
@@ -55,16 +58,16 @@ function App() {
               item.name = action.payload.name;
               item.price = action.payload.price;
               item.category = action.payload.category
-              item.image=action.payload.image
-              item.desc=action.payload.desc
+              item.image = action.payload.image
+              item.desc = action.payload.desc
             }
             return item
           })
         };
       case "DELETE_ITEM":
-       
-        axios.delete(`http://localhost:8080/forSaleItems/${action.payload.id}`).then((response)=>{
-          console.log(response)
+
+        axios.delete(`http://localhost:8080/forSaleItems/${action.payload.id}`).then((response) => {
+
         });
         return {
           ...state,
@@ -72,15 +75,25 @@ function App() {
           cartItems: state.cartItems.filter(item => item.id !== action.payload.id)
         };
       case "ADD_TO_CART":
+        console.log(action.payload)
+        axios.post("http://localhost:8080/cartItems", action.payload).then((response) => {
+
+        });
         return {
           ...state, cartItems: action.payload
         }
-
       case "DELETE_CART_ITEM":
+        axios.delete(`http://localhost:8080/cartItems/${action.payload.id}`).then((response) => {
+
+        });
         return {
           ...state, cartItems: state.cartItems.filter(item => item.id !== action.payload.id)
         }
       case "DECREMENT":
+
+        axios.put(`http://localhost:8080/cartItems/decrementItem/${action.payload.id}`).then((response) => {
+
+        });
         return {
           ...state, cartItems: state.cartItems.map(
             item => {
@@ -92,6 +105,9 @@ function App() {
           )
         }
       case "INCREMENT":
+        axios.put(`http://localhost:8080/cartItems/incrementItem/${action.payload.id}`).then((response) => {
+
+        });
         return {
           ...state, cartItems: state.cartItems.map(
             item => {
@@ -105,14 +121,19 @@ function App() {
       case "CATEGORY_SELECTION":
         return {
           ...state, categorySelected: action.payload.categorySelected
-        }
+        };
+      //toggles add item button in modify items tab
       case "TOGGLE":
         return {
           ...state, toggle: action.payload.toggle
         }
-      case "LOAD_FROM_JSON" :
+      case "LOAD_FROM_JSON":
         return {
           ...state, forSaleItems: action.payload
+        };
+      case "LOAD_CART_FROM_JSON":
+        return {
+          ...state, cartItems: action.payload
         };
 
       default: {
@@ -152,7 +173,7 @@ function App() {
     alert("added to cart successfully!")
   }
 
-  //initial load
+  //initial loading of items
   useEffect(() => {
     axios.get("http://localhost:8080/forSaleItems").then((response) => {
       dispatch({
@@ -160,8 +181,15 @@ function App() {
         payload: response.data
       })
     });
+
+    axios.get("http://localhost:8080/cartItems").then((response) => {
+      dispatch({
+        type: "LOAD_CART_FROM_JSON",
+        payload: response.data
+      })
+    })
   }, []);
- 
+
   const [state, dispatch] = useReducer(reducer, initialState);
 
   const categories = state.forSaleItems.reduce((categories, item) => {
@@ -186,12 +214,12 @@ function App() {
   const displayMenu = filteredItems.map(item => <Menu key={item.id} item={item} handleAddToCartClick={handleAddToCartClick} dispatch={dispatch} />)
   const displayCart = state.cartItems.map(item => <Cart item={item} key={item.id} dispatch={dispatch} cartTotal={cartTotal} />)
 
-  const [toggle,setToggle] = useState(false)
+  const [toggle, setToggle] = useState(false)
 
   return (
     <div className={styles.App}>
       <div className={styles.container}>
-        <div className={styles.header}> 
+        <div className={styles.header}>
           {/* <img src={banner} alt="banner" className={styles.img}/> */}
           <strong>Resto App</strong>
         </div>
@@ -234,9 +262,9 @@ function App() {
             />
 
             <Route path="/modifyitems" element={
-              
+
               <div className={styles.modifyItems}>
-                {toggle? <AddItem dispatch={dispatch} forSaleItems={state.forSaleItems} setToggle={setToggle} /> : <button onClick={()=>setToggle(true)}>Add an Item</button>}
+                {toggle ? <AddItem dispatch={dispatch} forSaleItems={state.forSaleItems} setToggle={setToggle} /> : <button onClick={() => setToggle(true)}>Add an Item</button>}
                 <div className={styles.displayModify}>
                   {displayModify}
                 </div>
