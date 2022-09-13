@@ -8,20 +8,15 @@ const bodyParser = require("body-parser");
 
 app.use(bodyParser.json());
 
-
-app.use(
-    cors({origin:"*"})
-);
+app.use(cors({ origin: "*" }));
 
 app.use("/forSaleItems", forSaleItemsRouter);
 app.use("/cartItems", cartItemsRouter);
 
-
 app.get("/", (request, response) => {
-    response.send(console.log("test"))
+  response.send(console.log("test"));
 });
 
 app.listen(port, () => {
-    console.log(`listening on port ${port}`);
+  console.log(`listening on port ${port}`);
 });
-
